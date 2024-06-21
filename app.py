@@ -38,7 +38,7 @@ def initialize_opengl():
     gluOrtho2D(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0)  # Set up an orthographic projection (flipped y-axis)
     glMatrixMode(GL_MODELVIEW)  # Switch back to modelview matrix
     glLoadIdentity()  # Reset the modelview matrix
-    glClearColor(0.1, 0.1, 0.1, 1.0)  # Set the clear color to black
+    glClearColor(0, 0, 0, 1.0)  # Set the clear color to black
 
 def spawn_sand(x, y):
     """
@@ -92,7 +92,7 @@ def draw_sand():
     Renders the sand particles on the screen.
     """
     glClear(GL_COLOR_BUFFER_BIT)  # Clear the screen with the clear color
-    glColor3f(1.0, 1.0, 0.0)  # Set the sand color to yellow
+    glColor3f(0.76,0.70,0.50)  # Sand color
     glBegin(GL_QUADS)  # Start drawing quads (rectangles)
     for y in range(grid_height):  # Iterate over each row
         for x in range(grid_width):  # Iterate over each column
@@ -105,7 +105,7 @@ def draw_sand():
                 glVertex2f(screen_x, screen_y + SAND_SIZE)  # Top-left corner of the quad
     glEnd()  # End drawing quads
 
-    glColor3f(1.0, 0.0, 0.0)  # Set the obstacle color to red
+    glColor3f(0.6,0.2,0.2)  # Brick color
     glBegin(GL_QUADS)  # Start drawing quads (rectangles)
     for y in range(grid_height):  # Iterate over each row
         for x in range(grid_width):  # Iterate over each column
@@ -132,6 +132,7 @@ def main():
     mouse_held = False  # Variable to track if the mouse button is held down
     place_obstacle_mode = False  # Variable to track if we are placing or removing obstacles
     remove_obstacle_mode = False  # Variable to track if we are removing obstacles
+    shift_held = False  # Variable to track if the Shift key is held down
 
     while running:  # Main loop
         for event in pygame.event.get():  # Process each event in the event queue
@@ -146,11 +147,15 @@ def main():
                     place_obstacle_mode = True  # Enable placing obstacles
                 elif event.key == pygame.K_2:  # If the '2' key is pressed
                     remove_obstacle_mode = True  # Enable removing obstacles
+                elif event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:  # If Shift key is pressed
+                    shift_held = True  # Enable shift mode
             elif event.type == pygame.KEYUP:  # If a key is released
                 if event.key == pygame.K_1:  # If the '1' key is released
                     place_obstacle_mode = False  # Disable placing obstacles
                 elif event.key == pygame.K_2:  # If the '2' key is released
                     remove_obstacle_mode = False  # Disable removing obstacles
+                elif event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:  # If Shift key is released
+                    shift_held = False  # Disable shift mode
 
         if mouse_held:  # If the mouse button is held down
             x, y = pygame.mouse.get_pos()  # Get the current mouse position
@@ -160,6 +165,9 @@ def main():
                 place_obstacle(x, y, remove=True)  # Remove an obstacle at the mouse position
             else:
                 spawn_sand(x, y)  # Spawn a sand particle at the mouse position
+                if shift_held:  # If Shift key is held down
+                    for _ in range(10):  # Emit lots of sand
+                        spawn_sand(x + np.random.randint(-5, 5) * SAND_SIZE, y + np.random.randint(-5, 5) * SAND_SIZE)
 
         update_sand()  # Update the positions of the sand particles
         draw_sand()  # Render the sand particles and obstacles
@@ -169,3 +177,4 @@ def main():
 
 if __name__ == "__main__":
     main()  # Run the main function if this script is executed
+
